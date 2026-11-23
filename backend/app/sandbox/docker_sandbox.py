@@ -1,5 +1,6 @@
 import base64
 import math
+import shlex
 import stat
 import tarfile
 from concurrent.futures import ThreadPoolExecutor
@@ -11,11 +12,11 @@ import docker
 from docker.errors import NotFound
 from docker.models.containers import Container
 
-from .base import ExecResult
+from .base import OUTPUT_HEAD, OUTPUT_TAIL, TRUNCATION_MARKER, ExecResult
 
 LABEL = "codeharness=1"
 USER = "10001:10001"
-HEAD, TAIL = 2048, 8192
+FILE_HELPER = "/usr/local/lib/codeharness/workspace_file.py"
 
 
 class DockerSandbox:
@@ -108,12 +109,12 @@ class DockerSandbox:
             size = 0
             for chunk in api.exec_start(exec_id, stream=True):
                 size += len(chunk)
-                take = min(HEAD - len(head), len(chunk))
+                take = min(OUTPUT_HEAD - len(head), len(chunk))
                 head.extend(chunk[:take])
                 tail.extend(chunk[take:])
-                del tail[: max(0, len(tail) - TAIL)]
-            truncated = size > HEAD + TAIL
-            marker = b"\n[output truncated]\n" if truncated else b""
+                del tail[: max(0, len(tail) - OUTPUT_TAIL)]
+            truncated = size > OUTPUT_HEAD + OUTPUT_TAIL
+            marker = TRUNCATION_MARKER if truncated else b""
             code = api.exec_inspect(exec_id)["ExitCode"]
             if code is None:
                 raise RuntimeError("Docker returned no command exit status")
@@ -131,6 +132,14 @@ class DockerSandbox:
         finally:
             pool.shutdown(wait=False, cancel_futures=True)
 
+    def list_dir(self, path: str) -> ExecResult:
+        return self.exec(shlex.join(["python", "-I", FILE_HELPER, "list", path]), 30)
+
+    def search(self, path: str, query: str) -> ExecResult:
+        return self.exec(
+            shlex.join(["python", "-I", FILE_HELPER, "search", path, query]), 30
+        )
+
     def _file(self, mode: str, path: str, *payload: str) -> str:
         box = self._running()
         self._fresh = False
@@ -138,7 +147,7 @@ class DockerSandbox:
             [
                 "python",
                 "-I",
-                "/usr/local/lib/codeharness/workspace_file.py",
+                FILE_HELPER,
                 mode,
                 path,
                 *payload,

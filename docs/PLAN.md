@@ -31,7 +31,7 @@ Do not start a phase until the previous phase's exit check passes.
   Verify the current provider docs (endpoint URLs, model IDs, tool-calling format) before coding; do not rely on memory. Normalize tool-call responses into one internal format, because providers differ in small ways. Handle 429 rate-limit errors with exponential backoff and a clear error message. Add a pricing/usage note: log input/output token counts per call.
   *Done when:* unit tests pass using MockLLM; the real provider has a smoke test (one tool-calling round trip) that is skipped when no API key is set; switching provider requires only env var changes.
 
-- [ ] **1.4 Tools**
+- [x] **1.4 Tools**
   `list_dir`, `read_file`, `search`, `write_file`/`str_replace`, `run_command`, with output truncation and path safety (stay inside the workspace).
   *Done when:* each tool has a test running against a real sandbox.
 

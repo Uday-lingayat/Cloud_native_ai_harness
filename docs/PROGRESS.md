@@ -3,10 +3,10 @@
 ## Current state
 
 - **Current phase:** Phase 1
-- **Last completed milestone:** 1.3 LLM interface and MockLLM
-- **Current milestone:** 1.4 Sandbox tools (pending)
+- **Last completed milestone:** 1.4 Sandbox tools
+- **Current milestone:** 1.5 Agent loop (pending plan approval)
 - **Last updated:** 2026-11-23
-- **Does `make test` pass?** Yes. Eleven tests passed, including eight offline LLM tests and two live Docker tests, with zero skips.
+- **Does `make test` pass?** Yes. Thirteen tests passed, including four live Docker tests, with zero skips.
 
 ## What works right now
 
@@ -18,7 +18,7 @@ The calculator and date-range demo repos each have a task README, a machine-read
 
 ## Next step
 
-Milestone 1.4 will add and test the tools that operate on a sandbox workspace.
+Present the milestone 1.5 agent-loop plan and wait for approval before implementation.
 
 ## Known issues / open questions
 
@@ -41,7 +41,7 @@ make lint
 make demo
 ```
 
-Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `11 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
+Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `13 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
 
 ```text
 buggy_calc: 3 passed, 1 failed
@@ -51,6 +51,8 @@ date_ranges: 5 passed, 0 failed
 ```
 
 `make demo` points to the fixtures. The runnable agent demo arrives in milestone 1.5.
+
+`backend/app/agent/tools.py` exposes tool schemas and `execute_tool(call, sandbox)`. The four file and directory tools accept workspace-relative paths. Search matches literal text and returns grep line numbers. The command tool starts in `/workspace` under the container's existing filesystem permissions and 30-second timeout. Results include an exit code, output, and truncation flag. Long output retains the first 2 KiB and last 8 KiB.
 
 ### LLM configuration and smoke check
 
@@ -90,6 +92,12 @@ The smoke check skips when the key or explicit opt-in is absent. The default sui
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-23
+- Did: Added tool schemas and dispatch for listing, reading, searching, writing, and running commands. Chose the planned whole-file write operation for edits.
+- Milestones completed: 1.4.
+- Tests: Rebuilt the sandbox image and exercised all five tools against the calculator demo. Checked literal search, file round trips, workspace boundaries, output truncation, and the planted pytest failure. `make test` passed all 13 tests with zero skips, `make lint` passed, and zero labeled containers remained.
+- Next: Present the 1.5 plan for approval.
 
 ### 2026-11-23
 - Did: Implemented the common LLM interface, scripted mock, environment-based factory, and OpenAI-compatible client. Added token accounting, bounded rate-limit retries, and a single-request provider smoke test.
