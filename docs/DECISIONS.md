@@ -7,6 +7,12 @@ Format: Decision, Why, Alternatives not chosen, Revisit when.
 
 ---
 
+### D-15 Local development checks on Windows
+- **Decision:** Run CodeHarness tests and Ruff from a Python 3.11 virtual environment using GNU Make from PowerShell.
+- **Why:** Sandbox integration tests starting in milestone 1.2 need to launch Docker containers from the host.
+- **Alternative considered:** A development container would also need access to the host Docker daemon.
+- **Revisit when:** The supported development environment changes.
+
 ### D-01 Docker containers as sandboxes
 - **Why:** Works on any laptop and any Linux VM, fast to build, and the Docker SDK for Python is simple.
 - **Not chosen:** Firecracker (stronger isolation, but needs KVM and is hard to develop with), Kubernetes (big setup, adds nothing to the demo), managed sandboxes like E2B (we would not be building the sandbox layer ourselves).

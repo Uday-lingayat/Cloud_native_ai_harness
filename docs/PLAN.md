@@ -9,7 +9,7 @@ Do not start a phase until the previous phase's exit check passes.
 
 **Goal:** `make demo` runs one agent that fixes a planted bug in a demo repo, inside a Docker sandbox.
 
-- [ ] **1.0 Project skeleton**
+- [x] **1.0 Project skeleton**
   Repo layout from DESIGN.md, `pyproject.toml`, Makefile (`setup`, `test`, `lint`, `demo`), `.env.example`, ruff + pytest configured.
   *Done when:* `make setup && make test && make lint` run (even with one trivial test).
 

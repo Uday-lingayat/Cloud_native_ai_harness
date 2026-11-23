@@ -1,0 +1,31 @@
+ifeq ($(OS),Windows_NT)
+  SHELL := cmd.exe
+  ifneq ($(shell where.exe py 2>NUL),)
+    PYTHON ?= py -3.11
+  else ifneq ($(shell where.exe uv 2>NUL),)
+    PYTHON ?= uv run --no-project --python 3.11 -- python
+  else
+    PYTHON ?= python
+  endif
+  VENV_PYTHON := .venv/Scripts/python.exe
+else
+  PYTHON ?= python3.11
+  VENV_PYTHON := .venv/bin/python
+endif
+
+.PHONY: setup test lint demo
+
+setup:
+	$(PYTHON) -c "import sys; sys.exit(0 if sys.version_info[:2] == (3, 11) else 'Python 3.11 is required')"
+	$(PYTHON) -m venv .venv
+	$(VENV_PYTHON) -m pip install -e ".[dev]"
+
+test:
+	$(VENV_PYTHON) -m pytest
+
+lint:
+	$(VENV_PYTHON) -m ruff check .
+	$(VENV_PYTHON) -m ruff format --check .
+
+demo:
+	@echo Project skeleton ready. The runnable agent demo arrives in milestone 1.5.

@@ -27,7 +27,8 @@ You may be resuming after days or weeks. You have no memory of earlier sessions.
 - **Test as you go.** Every milestone must have at least one automated test or a runnable
   demo script that proves its "Done when" criteria.
 - **Small commits.** Commit after each working sub-step with a clear message.
-- **Never run AI-generated or repo code on the host.** It runs only inside sandbox containers.
+- Run CodeHarness development tests and lint in the local Python 3.11 `.venv`.
+  Run code from task repositories and agent-generated task commands only inside sandbox containers.
 - **Never put API keys in code, logs, events, or sandboxes.** Use environment variables
   (see `.env.example`). Never commit `.env`.
 - **Real LLM calls cost money or use limited quota.** Default to `MockLLM` for development and tests
