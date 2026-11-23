@@ -1,0 +1,19 @@
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Protocol
+
+
+@dataclass(frozen=True)
+class ExecResult:
+    exit_code: int
+    output: str
+    truncated: bool
+
+
+class Sandbox(Protocol):
+    def start(self) -> None: ...
+    def exec(self, cmd: str, timeout: float) -> ExecResult: ...
+    def read_file(self, path: str) -> str: ...
+    def write_file(self, path: str, content: str) -> None: ...
+    def copy_in(self, local_dir: Path) -> None: ...
+    def destroy(self) -> None: ...

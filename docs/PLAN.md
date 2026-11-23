@@ -17,7 +17,7 @@ Do not start a phase until the previous phase's exit check passes.
   Create `demo_repos/buggy_calc/` (small Python project, one failing pytest test, an obvious fix) and a second slightly harder one.
   *Done when:* `pytest` in each demo repo fails as designed, and the fix is a few lines.
 
-- [ ] **1.2 Sandbox image + `Sandbox` class**
+- [x] **1.2 Sandbox image + `Sandbox` class**
   `sandbox/Dockerfile`; `Sandbox` interface and `DockerSandbox` with `start`, `exec(cmd, timeout)`, `read_file`, `write_file`, `destroy`; memory/CPU/PID limits, non-root, label.
   *Done when:* a test starts a sandbox, copies a demo repo in, runs `pytest`, sees the failure output, and destroys the container (verified: no container left).
   - Run commands with in-container GNU `timeout` targeting the process group. The sandbox survives an ordinary timeout. Force-remove it only if the host-side backstop deadline expires.

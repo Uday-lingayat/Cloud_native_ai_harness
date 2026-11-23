@@ -81,5 +81,6 @@ make setup     # install dependencies
 make test      # run tests
 make lint      # ruff check
 make demo      # run the current phase's demo (see PROGRESS.md)
+make sandbox-image  # build the offline Python sandbox before Docker integration tests
 ```
 If a command does not exist yet, creating it is part of Milestone 1.0.

@@ -3,10 +3,10 @@
 ## Current state
 
 - **Current phase:** Phase 1
-- **Last completed milestone:** 1.1 Demo repos
-- **Current milestone:** 1.2 Sandbox image and Sandbox class (pending)
+- **Last completed milestone:** 1.2 Sandbox image and Sandbox class
+- **Current milestone:** 1.3 LLM interface and MockLLM (pending)
 - **Last updated:** 2026-11-23
-- **Does `make test` pass?** Yes, one backend package-import test passed.
+- **Does `make test` pass?** Yes. Three tests passed, including both live Docker integration tests, with zero skips.
 
 ## What works right now
 
@@ -14,9 +14,11 @@
 
 The calculator and date-range demo repos each have a task README, a machine-readable manifest, and an independently runnable pytest suite. Their reference patches live in `scripts/reference_fixes/`.
 
+`DockerSandbox` runs commands and handles UTF-8 workspace files in a fresh offline container. Copy a repo before running commands or using the file helpers. Each container gets an anonymous writable workspace volume, removed during destruction. The orphan cleanup helper defaults to dry-run and accepts a minimum age and the full IDs of active tasks.
+
 ## Next step
 
-Milestone 1.2 will build the Docker sandbox image and implement the sandbox lifecycle.
+Milestone 1.3 will introduce the LLM interface and MockLLM.
 
 ## Known issues / open questions
 
@@ -30,13 +32,16 @@ From the repository root, run each command on its own line:
 
 ```powershell
 make setup
+docker version
+make sandbox-image
 make test
 make lint
 .\.venv\Scripts\python.exe scripts\verify_demo_repos.py
+.\.venv\Scripts\python.exe scripts\verify_demo_repos.py --docker
 make demo
 ```
 
-Expect setup to install the development dependencies, the backend suite to report `1 passed`, and Ruff to report clean lint and formatting. The verifier extracts both demos and their reference fixes from Git HEAD into a temporary directory. Its expected output is:
+Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `3 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
 
 ```text
 buggy_calc: 3 passed, 1 failed
@@ -69,6 +74,14 @@ date_ranges: 5 passed, 0 failed
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-23
+- Did: Implemented the Docker sandbox image, lifecycle, workspace file and archive operations, command deadlines, head/tail output cap, orphan cleanup helper, and Docker verifier mode.
+- Milestones completed: 1.2.
+- Tests: Docker Desktop Engine 28.5.2 (linux/amd64), `make sandbox-image` succeeded, `make test` returned three passes with zero skips, and `make lint` passed. Both verifier modes produced the four expected results above. A final `docker ps -a --filter label=codeharness=1 -q` returned no IDs.
+- Findings: The SDK uploaded a tar into an anonymous volume on a read-only root filesystem. UID 10001 could modify the uploaded file. The conditional D-17 fallback was unnecessary. Windows setup now reuses the virtual environment after an attempted recreation hit a locked interpreter.
+- Left off at: The sandbox survived the process-group timeout test and the integration test confirmed removal of its container and anonymous volume.
+- Next: Milestone 1.3.
 
 ### 2026-11-23
 - Did: Added the calculator and date-range demos, README prompts, manifests with pytest node IDs, external reference patches, and a local verifier.

@@ -13,11 +13,17 @@ else
   VENV_PYTHON := .venv/bin/python
 endif
 
-.PHONY: setup test lint demo
+.DEFAULT_GOAL := setup
+.PHONY: setup test lint demo sandbox-image
 
-setup:
+sandbox-image:
+	docker build -t codeharness-sandbox ./sandbox
+
+$(VENV_PYTHON):
 	$(PYTHON) -c "import sys; sys.exit(0 if sys.version_info[:2] == (3, 11) else 'Python 3.11 is required')"
 	$(PYTHON) -m venv .venv
+
+setup: $(VENV_PYTHON)
 	$(VENV_PYTHON) -m pip install -e ".[dev]"
 
 test:
