@@ -17,6 +17,14 @@ You may be resuming after days or weeks. You have no memory of earlier sessions.
    If they disagree, fix PROGRESS.md first and tell the user.
 6. Run the existing tests (`make test`) so you know the starting state.
 
+## Autonomy
+
+- Briefly state the plan in the first message and proceed with implementation choices that follow DESIGN.md, PLAN.md, and DECISIONS.md.
+- Debug errors, retry, and adapt. Record notable findings in PROGRESS.md.
+- Stop and ask the user if you need a new dependency, want to change the stack, cannot meet a milestone's done criteria, would weaken isolation (including Docker socket access, host mounts, or sandbox networking), want to change the scope or order in PLAN.md, or need to spend money on real LLM calls.
+- For milestone 1.5 (agent loop) and Phase 4 concurrency work, present the plan and wait for approval before implementing.
+- Mark a milestone complete only after its required checks have actually run and passed. Skipped checks leave the milestone open.
+
 ## Work rules
 
 - **One milestone at a time.** Work only on the current milestone in PLAN.md.
@@ -37,8 +45,6 @@ You may be resuming after days or weeks. You have no memory of earlier sessions.
   (`LLM_PROVIDER=mock`). Use a real provider only for the milestone demo that needs it, run it once,
   and never put real-LLM calls inside loops, retries, or automated test suites that run by default.
   Never print or log API keys. Provider details are in D-14 and DESIGN.md section 11a.
-- **Ask when unsure.** If a requirement is ambiguous or two options are reasonable, ask the user
-  instead of guessing, and record the answer in DECISIONS.md.
 
 ## Session end routine (always do this before stopping)
 

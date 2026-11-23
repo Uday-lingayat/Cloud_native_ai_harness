@@ -20,6 +20,11 @@ Do not start a phase until the previous phase's exit check passes.
 - [ ] **1.2 Sandbox image + `Sandbox` class**
   `sandbox/Dockerfile`; `Sandbox` interface and `DockerSandbox` with `start`, `exec(cmd, timeout)`, `read_file`, `write_file`, `destroy`; memory/CPU/PID limits, non-root, label.
   *Done when:* a test starts a sandbox, copies a demo repo in, runs `pytest`, sees the failure output, and destroys the container (verified: no container left).
+  - Run commands with in-container GNU `timeout` targeting the process group. The sandbox survives an ordinary timeout. Force-remove it only if the host-side backstop deadline expires.
+  - Probe `put_archive` with a read-only root filesystem and writable workspace first. If the probe shows incompatibility, use a writable root filesystem and record the result and fallback as D-17. Drop all capabilities, enable no-new-privileges, run as non-root, disable networking, and set memory, CPU, and PID limits. Never mount host folders or the Docker socket.
+  - Keep the first 2 KiB and last 8 KiB of combined command output with a truncation marker between them to preserve the pytest summary.
+  - Use `init=True` and build with `make sandbox-image`. Orphan cleanup filters by label and minimum age, skips active container IDs, and supports dry-run mode.
+  - Require the Docker integration tests and `scripts/verify_demo_repos.py --docker` to run and pass against a live Docker engine. Skips leave this milestone open.
 
 - [ ] **1.3 LLM interface + MockLLM**
   `LLM` base class; `MockLLM` (plays back a scripted list of tool calls); `OpenAICompatibleLLM` (default real provider; takes `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` from env, so it works with Gemini's OpenAI-compatible endpoint, Groq, OpenRouter, Ollama, and OpenAI with no code change). `AnthropicLLM` and a native `GeminiLLM` are optional extras, added only if the user asks. A factory `get_llm()` picks the implementation from `LLM_PROVIDER` (`mock` | `openai_compatible` | `anthropic`). See D-14.
