@@ -28,4 +28,4 @@ lint:
 	$(VENV_PYTHON) -m ruff format --check .
 
 demo:
-	@echo Project skeleton ready. The runnable agent demo arrives in milestone 1.5.
+	@echo Demo repositories are available in demo_repos. The runnable agent demo arrives in milestone 1.5.

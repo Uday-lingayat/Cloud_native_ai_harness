@@ -1,0 +1,8 @@
+{
+  "task_prompt": "Fix the calculator so its four arithmetic operations produce the expected results. Preserve the public functions and existing tests.",
+  "test_command": "python -m pytest -q tests",
+  "expected_failing_tests": [
+    "tests/test_calculator.py::test_divide"
+  ],
+  "test_count": 4
+}

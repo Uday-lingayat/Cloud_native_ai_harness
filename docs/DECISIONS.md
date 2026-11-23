@@ -7,6 +7,12 @@ Format: Decision, Why, Alternatives not chosen, Revisit when.
 
 ---
 
+### D-16 Host verification of committed demo fixtures
+- **Decision:** Verify our own committed demo repos and reference fixes on temporary copies in the local Python 3.11 virtual environment. User repos and agent-edited task code run only in sandboxes.
+- **Why:** Each fixture needs a reproducible failing baseline and a passing reference fix before it can be used in a sandbox or evaluation.
+- **Alternative considered:** Requiring Docker for fixture verification would couple these data checks to the sandbox implementation.
+- **Revisit when:** The source or trust assumptions for fixtures change.
+
 ### D-15 Local development checks on Windows
 - **Decision:** Run CodeHarness tests and Ruff from a Python 3.11 virtual environment using GNU Make from PowerShell.
 - **Why:** Sandbox integration tests starting in milestone 1.2 need to launch Docker containers from the host.

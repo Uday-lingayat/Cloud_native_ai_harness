@@ -1,0 +1,8 @@
+{
+  "task_prompt": "Fix the date-range utility so it returns every calendar date from start through end, inclusive. If start is later than end, return an empty list. Preserve the existing API and tests.",
+  "test_command": "python -m pytest -q tests",
+  "expected_failing_tests": [
+    "tests/test_date_ranges.py::test_holiday_period"
+  ],
+  "test_count": 5
+}

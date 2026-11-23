@@ -1,0 +1,6 @@
+--- a/date_ranges.py
++++ b/date_ranges.py
+@@ -8,2 +8,2 @@
+-    days = end.timetuple().tm_yday - start.timetuple().tm_yday
++    days = (end - start).days
+     return [start + timedelta(days=offset) for offset in range(days + 1)]
