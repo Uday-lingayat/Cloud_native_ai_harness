@@ -3,8 +3,8 @@
 ## Current state
 
 - **Current phase:** Phase 1
-- **Last completed milestone:** 1.0 Project skeleton
-- **Current milestone:** 1.1 Demo repos (pending)
+- **Last completed milestone:** 1.1 Demo repos
+- **Current milestone:** 1.2 Sandbox image and Sandbox class (pending)
 - **Last updated:** 2026-11-23
 - **Does `make test` pass?** Yes, one backend package-import test passed.
 
@@ -12,9 +12,11 @@
 
 `make setup` installs the backend package, pytest, and Ruff in the project's Python 3.11 virtual environment. The example environment lists all six LLM settings and defaults to `mock`.
 
+The calculator and date-range demo repos each have a task README, a machine-readable manifest, and an independently runnable pytest suite. Their reference patches live in `scripts/reference_fixes/`.
+
 ## Next step
 
-Milestone 1.1 will add two demo repositories with planted bugs.
+Milestone 1.2 will build the Docker sandbox image and implement the sandbox lifecycle.
 
 ## Known issues / open questions
 
@@ -30,10 +32,20 @@ From the repository root, run each command on its own line:
 make setup
 make test
 make lint
+.\.venv\Scripts\python.exe scripts\verify_demo_repos.py
 make demo
 ```
 
-Expect setup to install the development dependencies, pytest to report `1 passed`, and Ruff to report clean lint and formatting. The demo target prints `Project skeleton ready. The runnable agent demo arrives in milestone 1.5.`
+Expect setup to install the development dependencies, the backend suite to report `1 passed`, and Ruff to report clean lint and formatting. The verifier extracts both demos and their reference fixes from Git HEAD into a temporary directory. Its expected output is:
+
+```text
+buggy_calc: 3 passed, 1 failed
+buggy_calc: 4 passed, 0 failed
+date_ranges: 4 passed, 1 failed
+date_ranges: 5 passed, 0 failed
+```
+
+`make demo` points to the fixtures. The runnable agent demo arrives in milestone 1.5.
 
 ## Environment notes
 
@@ -57,6 +69,14 @@ Expect setup to install the development dependencies, pytest to report `1 passed
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-23
+- Did: Added the calculator and date-range demos, README prompts, manifests with pytest node IDs, external reference patches, and a local verifier.
+- Milestones completed: 1.1.
+- Tests: The verifier confirmed each declared failure and all nine tests passed after the respective one-line fixes. The backend test and both Ruff checks passed.
+- Decisions made: D-16 permits host verification on temporary copies of our committed fixtures and reference fixes. User repos and agent-edited task code run only in sandboxes.
+- Left off at: Both fixtures are ready for sandbox testing.
+- Next: Milestone 1.2.
 
 ### 2026-11-23
 - Did: Created the package and directory skeleton, local Make targets, pytest and Ruff configuration, and example environment. Verified Git ignores local secrets, the virtual environment, and tool caches.

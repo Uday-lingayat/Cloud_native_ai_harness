@@ -3,13 +3,12 @@
 import io
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMOS = ("buggy_calc", "date_ranges")
@@ -25,13 +24,16 @@ def run_tests(repo: Path, command: str, count: int, failures: set[str]) -> set[s
     result = subprocess.run(
         [sys.executable, "-B", *command.split()[1:], "-rA", "--color=no"],
         cwd=repo,
+        check=False,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
         timeout=60,
     )
-    outcomes = re.findall(r"^(PASSED|FAILED) (tests/\S+::\S+)", result.stdout, re.M)
+    outcomes = re.findall(
+        r"^(PASSED|FAILED) (tests/\S+::\S+)", result.stdout, re.MULTILINE
+    )
     failed = {node for status, node in outcomes if status == "FAILED"}
     nodes = {node for _, node in outcomes}
     if (

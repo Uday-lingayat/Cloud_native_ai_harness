@@ -13,7 +13,7 @@ Do not start a phase until the previous phase's exit check passes.
   Repo layout from DESIGN.md, `pyproject.toml`, Makefile (`setup`, `test`, `lint`, `demo`), `.env.example`, ruff + pytest configured.
   *Done when:* `make setup && make test && make lint` run (even with one trivial test).
 
-- [ ] **1.1 Demo repos**
+- [x] **1.1 Demo repos**
   Create `demo_repos/buggy_calc/` (small Python project, one failing pytest test, an obvious fix) and a second slightly harder one.
   *Done when:* `pytest` in each demo repo fails as designed, and the fix is a few lines.
 
