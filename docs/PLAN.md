@@ -26,7 +26,7 @@ Do not start a phase until the previous phase's exit check passes.
   - Use `init=True` and build with `make sandbox-image`. Orphan cleanup filters by label and minimum age, skips active container IDs, and supports dry-run mode.
   - Require the Docker integration tests and `scripts/verify_demo_repos.py --docker` to run and pass against a live Docker engine. Skips leave this milestone open.
 
-- [ ] **1.3 LLM interface + MockLLM**
+- [x] **1.3 LLM interface + MockLLM**
   `LLM` base class; `MockLLM` (plays back a scripted list of tool calls); `OpenAICompatibleLLM` (default real provider; takes `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` from env, so it works with Gemini's OpenAI-compatible endpoint, Groq, OpenRouter, Ollama, and OpenAI with no code change). `AnthropicLLM` and a native `GeminiLLM` are optional extras, added only if the user asks. A factory `get_llm()` picks the implementation from `LLM_PROVIDER` (`mock` | `openai_compatible` | `anthropic`). See D-14.
   Verify the current provider docs (endpoint URLs, model IDs, tool-calling format) before coding; do not rely on memory. Normalize tool-call responses into one internal format, because providers differ in small ways. Handle 429 rate-limit errors with exponential backoff and a clear error message. Add a pricing/usage note: log input/output token counts per call.
   *Done when:* unit tests pass using MockLLM; the real provider has a smoke test (one tool-calling round trip) that is skipped when no API key is set; switching provider requires only env var changes.

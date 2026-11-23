@@ -3,10 +3,10 @@
 ## Current state
 
 - **Current phase:** Phase 1
-- **Last completed milestone:** 1.2 Sandbox image and Sandbox class
-- **Current milestone:** 1.3 LLM interface and MockLLM (pending)
+- **Last completed milestone:** 1.3 LLM interface and MockLLM
+- **Current milestone:** 1.4 Sandbox tools (pending)
 - **Last updated:** 2026-11-23
-- **Does `make test` pass?** Yes. Three tests passed, including both live Docker integration tests, with zero skips.
+- **Does `make test` pass?** Yes. Eleven tests passed, including eight offline LLM tests and two live Docker tests, with zero skips.
 
 ## What works right now
 
@@ -18,7 +18,7 @@ The calculator and date-range demo repos each have a task README, a machine-read
 
 ## Next step
 
-Milestone 1.3 will introduce the LLM interface and MockLLM.
+Milestone 1.4 will add and test the tools that operate on a sandbox workspace.
 
 ## Known issues / open questions
 
@@ -41,7 +41,7 @@ make lint
 make demo
 ```
 
-Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `3 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
+Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `11 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
 
 ```text
 buggy_calc: 3 passed, 1 failed
@@ -51,6 +51,22 @@ date_ranges: 5 passed, 0 failed
 ```
 
 `make demo` points to the fixtures. The runnable agent demo arrives in milestone 1.5.
+
+### LLM configuration and smoke check
+
+`app.llm.factory.get_llm()` defaults to a fresh mock. Supply a sequence of `Reply` objects with `script=` for deterministic tool calls. For a compatible service, set `LLM_PROVIDER=openai_compatible`, its base URL, its tool-capable model ID, and its key in the root `.env`. Process environment variables take precedence. For a local Ollama endpoint that ignores authentication, use a non-secret placeholder key. Use `close()` when finished with the client.
+
+The adapter logs task ID, provider, model, and reported input/output tokens at INFO level. Missing usage is recorded as unknown. To estimate cost, apply the provider's current rates for the selected model. Mock replies default to zero tokens. HTTP 429 responses use the configured retry limit with exponential backoff and jitter.
+
+The live smoke check makes one request with retries disabled. After confirming the provider budget alert and authorizing quota use, run from PowerShell:
+
+```powershell
+$env:RUN_LIVE_LLM = '1'
+try { .\.venv\Scripts\python.exe -m pytest -q -rs backend/smoke/test_llm_provider.py }
+finally { Remove-Item Env:RUN_LIVE_LLM }
+```
+
+The smoke check skips when the key or explicit opt-in is absent. The default suite exercises the real SDK against intercepted HTTP responses. Gemini endpoint and function schema reference: [Google's OpenAI compatibility guide](https://ai.google.dev/gemini-api/docs/openai#function-calling).
 
 ## Environment notes
 
@@ -74,6 +90,13 @@ date_ranges: 5 passed, 0 failed
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-23
+- Did: Implemented the common LLM interface, scripted mock, environment-based factory, and OpenAI-compatible client. Added token accounting, bounded rate-limit retries, and a single-request provider smoke test.
+- Milestones completed: 1.3.
+- Tests: `make setup`, `make test` (11 passed), and `make lint` passed. Separately checked the no-key and opt-in guards and the smoke assertion with an intercepted tool-call response. No live provider request or quota use.
+- Decisions made: Approved the OpenAI Python SDK for D-14's compatible adapter.
+- Next: Milestone 1.4.
 
 ### 2026-11-23
 - Did: Implemented the Docker sandbox image, lifecycle, workspace file and archive operations, command deadlines, head/tail output cap, orphan cleanup helper, and Docker verifier mode.
