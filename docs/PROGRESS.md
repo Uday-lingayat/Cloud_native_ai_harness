@@ -4,9 +4,9 @@
 
 - **Current phase:** Phase 1
 - **Last completed milestone:** 1.4 Sandbox tools
-- **Current milestone:** 1.5 Agent loop (pending plan approval)
+- **Current milestone:** 1.5 Agent loop (mock verified, Gemini demo pending)
 - **Last updated:** 2026-11-23
-- **Does `make test` pass?** Yes. Thirteen tests passed, including four live Docker tests, with zero skips.
+- **Does `make test` pass?** Yes. Twenty tests passed, including seven loop tests and four live Docker tests, with zero skips.
 
 ## What works right now
 
@@ -18,11 +18,11 @@ The calculator and date-range demo repos each have a task README, a machine-read
 
 ## Next step
 
-Present the milestone 1.5 agent-loop plan and wait for approval before implementation.
+Once the user has configured Gemini and confirmed the budget alert, run `make demo` once with the real provider. Record the command, output, provider, model and usage before checking off 1.5.
 
 ## Known issues / open questions
 
-- None yet.
+- The live Gemini run is pending local credentials, a tool-capable model ID, and budget-alert confirmation.
 
 ## How to run the current demo
 
@@ -41,7 +41,7 @@ make lint
 make demo
 ```
 
-Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `13 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
+Use the Linux engine in Docker Desktop and confirm `docker version` prints a Server section. Building the image needs package downloads on a cold cache. Expect the backend suite to report `20 passed` and Ruff to report clean lint and formatting. Both verifier modes extract the committed fixtures from Git HEAD. Docker mode runs each baseline and each fixed copy in a fresh offline container. Both print:
 
 ```text
 buggy_calc: 3 passed, 1 failed
@@ -50,7 +50,9 @@ date_ranges: 4 passed, 1 failed
 date_ranges: 5 passed, 0 failed
 ```
 
-`make demo` points to the fixtures. The runnable agent demo arrives in milestone 1.5.
+`make demo` uses the provider selected in the environment or root `.env`. For a zero-cost run in PowerShell, set `$env:LLM_PROVIDER = 'mock'`, run `make demo`, then remove that override with `Remove-Item Env:LLM_PROVIDER`. The demo checks the committed calculator's expected failure, runs the agent, transfers its candidate calculator into a fresh sandbox with the original tests, and prints the verified diff. It permits up to eight model calls, checks a cumulative 20,000-token budget and a 180-second deadline, and disables provider retries.
+
+For Gemini, open the Git-ignored root `.env` locally. Set `LLM_PROVIDER=openai_compatible`, `LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/`, the tool-capable model ID from your project as `LLM_MODEL`, your AI Studio key as `LLM_API_KEY`, and `LLM_MAX_RETRIES=0`. Keep the key on the backend. Confirm the billing alert for the key's project before the first hosted run. [AI Studio API keys](https://aistudio.google.com/apikey) · [Gemini compatibility](https://ai.google.dev/gemini-api/docs/openai) · [Cloud Billing budgets](https://cloud.google.com/billing/docs/how-to/budgets)
 
 `backend/app/agent/tools.py` exposes tool schemas and `execute_tool(call, sandbox)`. The four file and directory tools accept workspace-relative paths. Search matches literal text and returns grep line numbers. The command tool starts in `/workspace` under the container's existing filesystem permissions and 30-second timeout. Results include an exit code, output, and truncation flag. Long output retains the first 2 KiB and last 8 KiB.
 
@@ -92,6 +94,12 @@ The smoke check skips when the key or explicit opt-in is absent. The default sui
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-23
+- Did: Implemented the bounded calculator-repair loop, task-tagged in-memory events, and `make demo`. The final test run uses a separate container and a fresh copy of the original test suite.
+- Verification: `make test` passed all 20 tests and `make lint` passed. With `$env:LLM_PROVIDER='mock'`, `make demo` reported `baseline: 3 passed, 1 failed`, `tests_passed` after three scripted calls, and `independent check: 4 passed, 0 failed`. The diff changed only `return left // right` to `return left / right`.
+- Finding: Disabling Git's Windows CRLF conversion for the demo archive preserves the committed line endings and keeps the patch to one line.
+- Milestones completed: None. 1.5 and Phase 1 await the real-provider run.
 
 ### 2026-11-23
 - Did: Added tool schemas and dispatch for listing, reading, searching, writing, and running commands. Chose the planned whole-file write operation for edits.

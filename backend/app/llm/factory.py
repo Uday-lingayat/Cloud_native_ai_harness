@@ -7,8 +7,10 @@ from .mock import MockLLM
 from .openai_compatible import OpenAICompatibleLLM
 
 
-def get_llm(*, script: Iterable[Reply] = ()) -> LLM:
-    settings = LLMSettings.load()
+def get_llm(
+    *, script: Iterable[Reply] = (), settings: LLMSettings | None = None
+) -> LLM:
+    settings = settings or LLMSettings.load()
     if settings.provider == "mock":
         return MockLLM(script)
     if settings.provider == "openai_compatible":

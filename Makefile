@@ -34,4 +34,4 @@ lint:
 	$(VENV_PYTHON) -m ruff format --check .
 
 demo:
-	@echo Demo repositories are available in demo_repos. The runnable agent demo arrives in milestone 1.5.
+	$(VENV_PYTHON) scripts/demo.py

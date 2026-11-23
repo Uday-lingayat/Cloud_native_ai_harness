@@ -10,7 +10,13 @@ class MockLLM:
         self._script = iter(script)
 
     def complete(
-        self, messages: list[Message], tools: list[Tool], *, task_id: str
+        self,
+        messages: list[Message],
+        tools: list[Tool],
+        *,
+        task_id: str,
+        max_output_tokens: int | None = None,
+        timeout_s: float | None = None,
     ) -> Reply:
         reply = next(self._script, Reply())
         message: Message = {"role": "assistant", "content": reply.text}

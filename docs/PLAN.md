@@ -36,6 +36,7 @@ Do not start a phase until the previous phase's exit check passes.
   *Done when:* each tool has a test running against a real sandbox.
 
 - [ ] **1.5 Agent loop**
+  The scripted Docker demo and independent verification pass. The real-provider demo and Phase 1 exit check are pending.
   `agent/loop.py` as in DESIGN.md: step, token, and time budgets; repeated-action detection; emits events through a simple in-memory `emit_event` (printing to console for now).
   *Done when:* with MockLLM, the loop completes a scripted fix; with a real provider (set in `.env`), `make demo` fixes `buggy_calc` and prints the final `git diff`.
 

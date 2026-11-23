@@ -68,7 +68,9 @@ def _result(text: str, exit_code: int = 0) -> ExecResult:
     return ExecResult(exit_code, kept.decode(errors="replace"), True)
 
 
-def execute_tool(call: ToolCall, sandbox: Sandbox) -> ExecResult:
+def execute_tool(
+    call: ToolCall, sandbox: Sandbox, *, timeout: float = 30
+) -> ExecResult:
     """Return tool errors to the caller; infrastructure failures propagate."""
     args = call.arguments
     expected = _PARAMETERS.get(call.name)
@@ -90,6 +92,6 @@ def execute_tool(call: ToolCall, sandbox: Sandbox) -> ExecResult:
         if call.name == "write_file":
             sandbox.write_file(args["path"], args["content"])
             return _result("File written")
-        return sandbox.exec(args["cmd"], timeout=30)
+        return sandbox.exec(args["cmd"], timeout=min(timeout, 30))
     except ValueError as error:
         return _result(str(error), 2)

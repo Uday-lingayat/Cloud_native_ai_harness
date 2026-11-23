@@ -25,13 +25,27 @@ class OpenAICompatibleLLM:
         )
 
     def complete(
-        self, messages: list[Message], tools: list[Tool], *, task_id: str
+        self,
+        messages: list[Message],
+        tools: list[Tool],
+        *,
+        task_id: str,
+        max_output_tokens: int | None = None,
+        timeout_s: float | None = None,
     ) -> Reply:
         for attempt in range(self.settings.max_retries + 1):
             try:
                 completion = self.client.chat.completions.create(
                     model=self.settings.model,
                     messages=messages,
+                    timeout=min(self.settings.timeout_s, timeout_s)
+                    if timeout_s is not None
+                    else self.settings.timeout_s,
+                    **(
+                        {"max_tokens": max_output_tokens}
+                        if max_output_tokens is not None
+                        else {}
+                    ),
                     **({"tools": tools} if tools else {}),
                 )
                 break

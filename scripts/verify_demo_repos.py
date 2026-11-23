@@ -58,12 +58,18 @@ def run_tests(
             code, output = result.exit_code, result.output
         finally:
             box.destroy()
+    return check_outcomes(repo.name, code, output, count, failures)
+
+
+def check_outcomes(
+    name: str, code: int, output: str, count: int, failures: set[str]
+) -> set[str]:
     outcomes = re.findall(r"^(PASSED|FAILED) (tests/\S+::\S+)", output, re.MULTILINE)
     failed = {node for status, node in outcomes if status == "FAILED"}
     nodes = {node for _, node in outcomes}
     if code != int(bool(failures)) or failed != failures or len(nodes) != count:
-        raise RuntimeError(f"{repo.name}: unexpected pytest results\n{output}")
-    print(f"{repo.name}: {count - len(failed)} passed, {len(failed)} failed")
+        raise RuntimeError(f"{name}: unexpected pytest results\n{output}")
+    print(f"{name}: {count - len(failed)} passed, {len(failed)} failed")
     return nodes
 
 
