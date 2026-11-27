@@ -2,9 +2,9 @@
 
 ## Current state
 
-- **Current phase:** Phase 1
-- **Last completed milestone:** 1.4 Sandbox tools
-- **Current milestone:** 1.5 Agent loop (mock verified, OpenRouter demo pending)
+- **Current phase:** Phase 2
+- **Last completed milestone:** 1.5 Agent loop (Phase 1 exit verified)
+- **Current milestone:** 2.1 DB models and setup (pending)
 - **Last updated:** 2026-11-27
 - **Does `make test` pass?** All 20 passed with Docker running, with zero skips.
 
@@ -18,11 +18,11 @@ The calculator and date-range demo repos each have a task README, a machine-read
 
 ## Next step
 
-After explicit approval to send the calculator demo prompt, fixture contents and tool interactions to OpenRouter and its routed providers, run `make demo` once. Record the command, output, reported models and usage before checking off 1.5.
+Implement milestone 2.1, SQLite task and event models with create/read tests.
 
 ## Known issues / open questions
 
-- The free route and key are configured. Automatic approval review blocked the live command pending consent for the fixture payload.
+- None blocking the Phase 1 exit.
 
 ## How to run the current demo
 
@@ -85,6 +85,54 @@ The smoke check skips when the key or explicit opt-in is absent. The default sui
 ---
 
 ## Session log (newest first, one entry per session)
+
+### 2026-11-27 — Phase 1 exit
+
+The approved OpenRouter free-tier run repaired division in one line. Step 5 wrote the fix using `nvidia/nemotron-3.5-super-vl:free`. Six calls used 6,232 input tokens and 461 output tokens. All four original tests passed in the independent container. Milestone 1.5 is complete. Next is 2.1.
+
+<details>
+<summary>Live demo command and output (exit 0)</summary>
+
+```text
+make demo
+.venv/Scripts/python.exe scripts/demo.py
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "started", "data": {"provider": "openai_compatible", "model": "openrouter/free"}}
+baseline: 3 passed, 1 failed
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "model_response", "data": {"step": 1, "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "input_tokens": 797, "output_tokens": 39}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_call", "data": {"id": "call-0b2dfe5c-ade4-42ee-aaf8-d391e49a9ece", "name": "list_dir"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_result", "data": {"id": "call-0b2dfe5c-ade4-42ee-aaf8-d391e49a9ece", "exit_code": 0, "output": ".pytest_cache/\n.tmp/\nREADME.md\ncalculator.py\nmanifest.json\ntests/\n", "truncated": false}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "model_response", "data": {"step": 2, "model": "nvidia/nemotron-3-ultra-550b-a55b:free", "input_tokens": 894, "output_tokens": 37}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_call", "data": {"id": "call-4cdc5794-5846-4c31-9c8d-f3bdf04f81a6", "name": "read_file"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_result", "data": {"id": "call-4cdc5794-5846-4c31-9c8d-f3bdf04f81a6", "exit_code": 0, "output": "def add(left: float, right: float) -> float:\n    return left + right\n\n\ndef subtract(left: float, right: float) -> float:\n    return left - right\n\n\ndef multiply(left: float, right: float) -> float:\n    return left * right\n\n\ndef divide(left: float, right: float) -> float:\n    return left // right\n", "truncated": false}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "model_response", "data": {"step": 3, "model": "baidu/ernie-5.5-flash-preview:free", "input_tokens": 796, "output_tokens": 30}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_call", "data": {"id": "call_94f2bdcc104b4f25bd5db83e", "name": "list_dir"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_result", "data": {"id": "call_94f2bdcc104b4f25bd5db83e", "exit_code": 0, "output": "test_calculator.py\n", "truncated": false}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "model_response", "data": {"step": 4, "model": "liquid/lfm-3-1.7b:free", "input_tokens": 802, "output_tokens": 30}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_call", "data": {"id": "call_97deef40de2e4b4a88c0c4df", "name": "read_file"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_result", "data": {"id": "call_97deef40de2e4b4a88c0c4df", "exit_code": 0, "output": "from calculator import add, divide, multiply, subtract\n\n\ndef test_add() -> None:\n    assert add(-2, 5) == 3\n\n\ndef test_subtract() -> None:\n    assert subtract(4, 9) == -5\n\n\ndef test_multiply() -> None:\n    assert multiply(-3, 4) == -12\n\n\ndef test_divide() -> None:\n    assert divide(7, 2) == 3.5\n", "truncated": false}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "model_response", "data": {"step": 5, "model": "nvidia/nemotron-3.5-super-vl:free", "input_tokens": 1308, "output_tokens": 289}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "reasoning", "data": {"text": "The bug is clear: `divide` uses floor division `//` instead of true division `/`, so `divide(7, 2)` returns `3` instead of `3.5`. The other three operations match the tests. Let me fix `divide`.\n"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_call", "data": {"id": "call-b6c61513-d389-44b0-bfca-013612400a7c", "name": "write_file"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_result", "data": {"id": "call-b6c61513-d389-44b0-bfca-013612400a7c", "exit_code": 0, "output": "File written", "truncated": false}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "model_response", "data": {"step": 6, "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "input_tokens": 1635, "output_tokens": 36}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "tool_call", "data": {"id": "call-f563cec3-7d49-435f-8bf7-3529c04a550b", "name": "run_command"}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "terminal_output", "data": {"id": "call-f563cec3-7d49-435f-8bf7-3529c04a550b", "exit_code": 0, "output": "....                                                                     [100%]\n4 passed in 0.01s\n", "truncated": false}}
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "agent_stopped", "data": {"reason": "tests_passed", "steps": 6, "input_tokens": 6232, "output_tokens": 461}}
+independent check: 4 passed, 0 failed
+{"task_id": "ca8de63d63244c9897802f94ada29158", "type": "done", "data": {"tests_passed": 4}}
+diff --git a/calculator.py b/calculator.py
+index cbecd8d..739a89b 100644
+--- a/calculator.py
++++ b/calculator.py
+@@ -11,4 +11,4 @@ def multiply(left: float, right: float) -> float:
+
+
+ def divide(left: float, right: float) -> float:
+-    return left // right
++    return left / right
+```
+
+</details>
 
 ### Template
 ```
