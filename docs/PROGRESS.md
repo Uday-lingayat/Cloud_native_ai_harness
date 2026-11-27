@@ -4,9 +4,9 @@
 
 - **Current phase:** Phase 1
 - **Last completed milestone:** 1.4 Sandbox tools
-- **Current milestone:** 1.5 Agent loop (mock verified, Gemini demo pending)
-- **Last updated:** 2026-11-23
-- **Does `make test` pass?** Yes. Twenty tests passed, including seven loop tests and four live Docker tests, with zero skips.
+- **Current milestone:** 1.5 Agent loop (mock verified, OpenRouter demo pending)
+- **Last updated:** 2026-11-27
+- **Does `make test` pass?** Latest run: 16 passed and four Docker tests skipped. The previous live Docker run passed all 20.
 
 ## What works right now
 
@@ -18,11 +18,11 @@ The calculator and date-range demo repos each have a task README, a machine-read
 
 ## Next step
 
-Once the user has configured Gemini and confirmed the budget alert, run `make demo` once with the real provider. Record the command, output, provider, model and usage before checking off 1.5.
+Once the user has added an OpenRouter key and Docker is available, run `make demo` once with the real provider. Record the command, output, provider, model and usage before checking off 1.5.
 
 ## Known issues / open questions
 
-- The live Gemini run is pending local credentials, a tool-capable model ID, and budget-alert confirmation.
+- The live free-model demo needs an OpenRouter API key and a running Docker engine.
 
 ## How to run the current demo
 
@@ -52,7 +52,7 @@ date_ranges: 5 passed, 0 failed
 
 `make demo` uses the provider selected in the environment or root `.env`. For a zero-cost run in PowerShell, set `$env:LLM_PROVIDER = 'mock'`, run `make demo`, then remove that override with `Remove-Item Env:LLM_PROVIDER`. The demo checks the committed calculator's expected failure, runs the agent, transfers its candidate calculator into a fresh sandbox with the original tests, and prints the verified diff. It permits up to eight model calls, checks a cumulative 20,000-token budget and a 180-second deadline, and disables provider retries.
 
-For Gemini, open the Git-ignored root `.env` locally. Set `LLM_PROVIDER=openai_compatible`, `LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/`, the tool-capable model ID from your project as `LLM_MODEL`, your AI Studio key as `LLM_API_KEY`, and `LLM_MAX_RETRIES=0`. Keep the key on the backend. Confirm the billing alert for the key's project before the first hosted run. [AI Studio API keys](https://aistudio.google.com/apikey) · [Gemini compatibility](https://ai.google.dev/gemini-api/docs/openai) · [Cloud Billing budgets](https://cloud.google.com/billing/docs/how-to/budgets)
+For the first hosted demo, set `LLM_PROVIDER=openai_compatible`, `LLM_BASE_URL=https://openrouter.ai/api/v1`, `LLM_MODEL=openrouter/free`, and `LLM_MAX_RETRIES=0` in the ignored root `.env`. Put an OpenRouter key in `LLM_API_KEY`. The free router selects an available model supporting the requested tools and can select a different model on each call. Later, set `LLM_MODEL` to a specific tool-capable OpenRouter model ID. Check its price and set a spending limit before a paid run. [OpenRouter API keys](https://openrouter.ai/settings/keys) · [Free model routing](https://openrouter.ai/docs/guides/routing/routers/free-router)
 
 `backend/app/agent/tools.py` exposes tool schemas and `execute_tool(call, sandbox)`. The four file and directory tools accept workspace-relative paths. Search matches literal text and returns grep line numbers. The command tool starts in `/workspace` under the container's existing filesystem permissions and 30-second timeout. Results include an exit code, output, and truncation flag. Long output retains the first 2 KiB and last 8 KiB.
 
@@ -70,13 +70,13 @@ try { .\.venv\Scripts\python.exe -m pytest -q -rs backend/smoke/test_llm_provide
 finally { Remove-Item Env:RUN_LIVE_LLM }
 ```
 
-The smoke check skips when the key or explicit opt-in is absent. The default suite exercises the real SDK against intercepted HTTP responses. Gemini endpoint and function schema reference: [Google's OpenAI compatibility guide](https://ai.google.dev/gemini-api/docs/openai#function-calling).
+The smoke check skips when the key or explicit opt-in is absent. The default suite exercises the real SDK against intercepted HTTP responses. OpenRouter setup: [OpenAI-compatible quickstart](https://openrouter.ai/docs/quickstart).
 
 ## Environment notes
 
 - LLM provider: set via `.env` (`LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`; see `.env.example` and D-14).
-  The user plans to use Gemini via Google AI Pro developer credits (needs activation and a Cloud billing account) and `MockLLM` for most development.
-- Before the first real LLM call: confirm the user has set a provider budget alert.
+  OpenRouter free routing is the initial hosted provider. Most development uses the mock.
+- Use free routing for the initial hosted run. Confirm the budget and approval before switching to a paid model.
 - Local checks use Python 3.11 in `.venv`. Make invokes its interpreter directly, so activation is optional. On Windows, setup selects `py -3.11`, then tries uv if the launcher is absent, then falls back to `python` on PATH. This machine used its installed uv-managed Python 3.11.12 and GNU Make 4.4.1.
 - Docker is required starting with the sandbox integration tests in 1.2. Run benchmarks on a Linux cloud VM.
 
@@ -94,6 +94,9 @@ The smoke check skips when the key or explicit opt-in is absent. The default sui
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-27
+- Switched the local demo configuration to OpenRouter free routing and verified the effective endpoint and model offline. No hosted request was made. Milestone 1.5 remains open.
 
 ### 2026-11-23
 - Did: Implemented the bounded calculator-repair loop, task-tagged in-memory events, and `make demo`. The final test run uses a separate container and a fresh copy of the original test suite.
