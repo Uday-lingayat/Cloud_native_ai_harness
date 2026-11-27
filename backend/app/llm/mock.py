@@ -32,7 +32,7 @@ class MockLLM:
                 }
                 for call in reply.tool_calls
             ]
-        reply = replace(reply, assistant_message=message)
+        reply = replace(reply, assistant_message=message, model="scripted")
         log_usage(task_id, "mock", "scripted", reply.input_tokens, reply.output_tokens)
         return reply
 

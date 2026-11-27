@@ -78,6 +78,7 @@ def endpoint(monkeypatch: pytest.MonkeyPatch) -> Callable:
 
 def completion(arguments: str = '{"text":"hello"}') -> dict[str, Any]:
     return {
+        "model": "fixture/routed-model",
         "choices": [
             {
                 "index": 0,
@@ -130,6 +131,7 @@ def test_compatible_tool_call(
         == "fixture"
     )
     assert (reply.input_tokens, reply.output_tokens) == (12, 4)
+    assert reply.model == "fixture/routed-model"
     assert "input_tokens=12 output_tokens=4" in caplog.text
     assert "test-only" not in caplog.text and "test-only" not in repr(
         LLMSettings.load()

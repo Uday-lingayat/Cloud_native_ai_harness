@@ -47,7 +47,11 @@ def test_message_history_and_deadline(monkeypatch: pytest.MonkeyPatch) -> None:
     box.read_file.return_value = "calculator source"
     llm = MockLLM([Reply(tool_calls=(READ,)), Reply(text="finished")])
     spy = Mock(wraps=llm)
-    result = run_agent(TASK, box, spy, Mock())
+    emit = Mock()
+    result = run_agent(TASK, box, spy, emit)
+    assert [
+        e.args[2]["model"] for e in emit.call_args_list if e.args[1] == "model_response"
+    ] == ["scripted", "scripted"]
     assert result.reason == "model_finished"
     history = spy.complete.call_args.args[0]
     assert history[2]["tool_calls"][0]["id"] == history[3]["tool_call_id"] == "first"

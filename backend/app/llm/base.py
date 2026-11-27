@@ -21,6 +21,7 @@ class Reply:
     output_tokens: int | None = 0
     # Preserve provider-specific message fields for the next request (e.g. Gemini signatures).
     assistant_message: Message = field(default_factory=dict, repr=False)
+    model: str | None = None
 
 
 class LLM(Protocol):

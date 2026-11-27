@@ -69,6 +69,16 @@ def run_agent(
             max_output_tokens=min(2048, allowance),
             timeout_s=remaining,
         )
+        emit_event(
+            task.id,
+            "model_response",
+            {
+                "step": run.steps,
+                "model": reply.model or "unreported",
+                "input_tokens": reply.input_tokens,
+                "output_tokens": reply.output_tokens,
+            },
+        )
         if reply.input_tokens is None or reply.output_tokens is None:
             run.reason = "usage_unavailable"
             break

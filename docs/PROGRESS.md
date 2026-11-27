@@ -6,7 +6,7 @@
 - **Last completed milestone:** 1.4 Sandbox tools
 - **Current milestone:** 1.5 Agent loop (mock verified, OpenRouter demo pending)
 - **Last updated:** 2026-11-27
-- **Does `make test` pass?** Latest run: 16 passed and four Docker tests skipped. The previous live Docker run passed all 20.
+- **Does `make test` pass?** All 20 passed with Docker running, with zero skips.
 
 ## What works right now
 
@@ -18,11 +18,11 @@ The calculator and date-range demo repos each have a task README, a machine-read
 
 ## Next step
 
-Once the user has added an OpenRouter key and Docker is available, run `make demo` once with the real provider. Record the command, output, provider, model and usage before checking off 1.5.
+After explicit approval to send the calculator demo prompt, fixture contents and tool interactions to OpenRouter and its routed providers, run `make demo` once. Record the command, output, reported models and usage before checking off 1.5.
 
 ## Known issues / open questions
 
-- The live free-model demo needs an OpenRouter API key and a running Docker engine.
+- The free route and key are configured. Automatic approval review blocked the live command pending consent for the fixture payload.
 
 ## How to run the current demo
 
@@ -57,6 +57,8 @@ For the first hosted demo, set `LLM_PROVIDER=openai_compatible`, `LLM_BASE_URL=h
 `backend/app/agent/tools.py` exposes tool schemas and `execute_tool(call, sandbox)`. The four file and directory tools accept workspace-relative paths. Search matches literal text and returns grep line numbers. The command tool starts in `/workspace` under the container's existing filesystem permissions and 30-second timeout. Results include an exit code, output, and truncation flag. Long output retains the first 2 KiB and last 8 KiB.
 
 ### LLM configuration and smoke check
+
+During `make demo`, the initial event identifies the configured route. Each `model_response` event shows the model ID reported for that step and its input/output token counts. An omitted model ID appears as `unreported`.
 
 `app.llm.factory.get_llm()` defaults to a fresh mock. Supply a sequence of `Reply` objects with `script=` for deterministic tool calls. For a compatible service, set `LLM_PROVIDER=openai_compatible`, its base URL, its tool-capable model ID, and its key in the root `.env`. Process environment variables take precedence. For a local Ollama endpoint that ignores authentication, use a non-secret placeholder key. Use `close()` when finished with the client.
 
@@ -94,6 +96,9 @@ The smoke check skips when the key or explicit opt-in is absent. The default sui
 - Left off at: ...
 - Next: ...
 ```
+
+### 2026-11-27
+- Added per-call model reporting. Verified routed model IDs with an intercepted SDK response and printed three scripted model events during a live Docker mock demo. The independent calculator check passed 4/4. All 20 project tests and lint passed. Automatic approval review blocked the hosted demo before any OpenRouter request.
 
 ### 2026-11-27
 - Switched the local demo configuration to OpenRouter free routing and verified the effective endpoint and model offline. No hosted request was made. Milestone 1.5 remains open.

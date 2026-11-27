@@ -67,7 +67,7 @@ class OpenAICompatibleLLM:
         log_usage(
             task_id,
             "openai_compatible",
-            self.settings.model,
+            completion.model or "unreported",
             input_tokens,
             output_tokens,
         )
@@ -98,6 +98,7 @@ class OpenAICompatibleLLM:
             input_tokens,
             output_tokens,
             message.model_dump(exclude_none=True),
+            model=completion.model,
         )
 
     def close(self) -> None:
